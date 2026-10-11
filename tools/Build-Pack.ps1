@@ -1,4 +1,4 @@
-# Builds dist\FFWModpack-v<version>.zip from config\pack.json.
+# Builds dist\<name>-v<version>.zip from config\pack.json (name, title, version come from there).
 # Windows PowerShell 5.1 compatible. Does not touch the game folder.
 param(
     [string]$GameRoot = 'C:\Program Files (x86)\Steam\steamapps\common\FarFarWest'
@@ -91,6 +91,7 @@ $fingerprint = (($fpBytes | ForEach-Object { $_.ToString('X2') }) -join '').Subs
 
 $manifest = [ordered]@{
     name = $cfg.name
+    title = $cfg.title
     version = $cfg.version
     fingerprint = $fingerprint
     builtAtUtc = (Get-Date).ToUniversalTime().ToString('o')
@@ -106,6 +107,7 @@ $inst = Join-Path $root 'installer'
 foreach ($s in 'Common.ps1', 'Install.ps1', 'Uninstall.ps1', 'Update.ps1') { Copy-Item -LiteralPath (Join-Path $inst $s) -Destination $pack }
 foreach ($b in 'Install.bat', 'Verify.bat', 'Uninstall.bat', 'Update.bat') { Copy-Item -LiteralPath (Join-Path $inst $b) -Destination $stage }
 $readme = (Get-Content -LiteralPath (Join-Path $inst 'README.txt') -Raw).
+    Replace('{TITLE}', $cfg.title).Replace('{NAME}', $cfg.name).Replace('{PAK}', $cfg.morepak.name).Replace('{REPO}', $cfg.updates.repository).
     Replace('{VERSION}', $cfg.version).Replace('{FINGERPRINT}', $fingerprint).Replace('{GAME_VERSION}', $cfg.game.productVersion)
 [IO.File]::WriteAllText((Join-Path $stage 'README.txt'), ($readme -replace "`r?`n", "`r`n"))
 

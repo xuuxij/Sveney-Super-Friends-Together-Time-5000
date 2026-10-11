@@ -1,5 +1,5 @@
-FAR FAR WEST MODPACK  v{VERSION}   (fingerprint {FINGERPRINT})
-Made for Far Far West {GAME_VERSION}
+{TITLE}  v{VERSION}   (fingerprint {FINGERPRINT})
+A Far Far West modpack, made for Far Far West {GAME_VERSION}
 
 WHAT'S IN IT
   - Damage meter: live DPS, total damage, kills, best second, all-time kills
@@ -44,7 +44,7 @@ WHAT'S IN IT
     the saloon. Your layout and switches are remembered and are your own
     choice: they do not affect the pack check below.
   - UE4SS v3.0.1-1109 (the script loader the mods run on) and one small
-    game-file patch pak (ZZZ_FFWModpack_P) with the objective fixes.
+    game-file patch pak ({PAK}) with the objective fixes.
 
 INSTALL
   1. Close Far Far West.
@@ -52,14 +52,14 @@ INSTALL
   3. Double-click Install.bat. It finds the game through Steam.
      If Windows shows "Windows protected your PC", click More info -> Run anyway.
   Anything it replaces, plus any other mods you had, gets moved to
-  FarFarWest\FFWModpack-backup\ so everyone runs exactly the same files.
+  FarFarWest\{NAME}-backup\ so everyone runs exactly the same files.
 
 CHECK YOU MATCH EVERYONE ELSE
   Double-click Verify.bat. It must say OK and show the same fingerprint
   as the host's: {FINGERPRINT}
 
 UPDATE
-  Double-click Update.bat. It looks at github.com/xuuxij/FFWModpack for a newer pack,
+  Double-click Update.bat. It looks at github.com/{REPO} for a newer pack,
   downloads it and installs it, then you run Verify.bat as above. Everyone in
   the lobby has to be on the same version, so say when you update.
 

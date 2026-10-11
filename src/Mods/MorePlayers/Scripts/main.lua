@@ -12,7 +12,7 @@
 --                players 1..4
 --   status.lua   publishes what the mod is doing for the Extras panel
 -- The objectives that break at 5+ players (TNT, totem, pillar, shredder, laser,
--- drill, sigil, ...) are fixed by the pack's own pak (ZZZ_FFWModpack_P), not here.
+-- drill, sigil, ...) are fixed by the pack's own pak (ZZZ_SveneySuperFriendsTogetherTime5000_P), not here.
 -- Settings: settings.txt next to Scripts (made with defaults on first run).
 
 local MOD_VERSION = "1.0.0"
@@ -67,7 +67,7 @@ local CONFIG = {
     PACING = tonumber(S.PACING) or 0.90,
     LOOT = S.LOOT,                           -- "hold" or "auto"
     COLOURS = S.COLOURS ~= "0",
-    PAK_NAME = "ZZZ_FFWModpack_P",
+    PAK_NAME = "ZZZ_SveneySuperFriendsTogetherTime5000_P",
     DEV_LOG = false,                         -- dev only: log every hook call
 }
 if CONFIG.PACING < 0.5 then CONFIG.PACING = 0.5 elseif CONFIG.PACING > 1 then CONFIG.PACING = 1 end

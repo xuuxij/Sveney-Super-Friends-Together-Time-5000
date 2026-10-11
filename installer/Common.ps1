@@ -3,7 +3,8 @@
 $ErrorActionPreference = 'Stop'
 $PackDir = $PSScriptRoot
 $Manifest = Get-Content -LiteralPath (Join-Path $PackDir 'manifest.json') -Raw | ConvertFrom-Json
-$RecordName = 'FFWModpack-installed.json'
+$RecordName = "$($Manifest.name)-installed.json"
+$LegacyRecordNames = @('FFWModpack-installed.json')   # the pack's name up to 1.5.0
 $ShippingProcess = 'FarFarWest-Win64-Shipping'
 
 function Find-GameRoot {
@@ -120,9 +121,17 @@ function Test-PackInstall([string]$GameRoot) {
 
 # Previous install (any pack version): its files are ours to replace, and its
 # backups must survive upgrades so Uninstall can still restore the original mods.
+function Get-InstallRecordPath([string]$GameRoot) {
+    foreach ($n in @($RecordName) + $LegacyRecordNames) {
+        $path = Join-Path $GameRoot $n
+        if (Test-Path -LiteralPath $path) { return $path }
+    }
+    return $null
+}
+
 function Get-InstallRecord([string]$GameRoot) {
-    $path = Join-Path $GameRoot $RecordName
-    if (-not (Test-Path -LiteralPath $path)) { return $null }
+    $path = Get-InstallRecordPath $GameRoot
+    if (-not $path) { return $null }
     try { return Get-Content -LiteralPath $path -Raw | ConvertFrom-Json } catch { return $null }
 }
 
@@ -135,9 +144,14 @@ function Get-RecordBackups($Record) {
     return $list
 }
 
+function Get-PackTitle {
+    if ($Manifest.PSObject.Properties['title'] -and $Manifest.title) { return $Manifest.title }
+    return $Manifest.name
+}
+
 function Write-PackHeader {
     Write-Host ''
-    Write-Host "  $($Manifest.name) v$($Manifest.version)   fingerprint $($Manifest.fingerprint)" -ForegroundColor Yellow
+    Write-Host "  $(Get-PackTitle) v$($Manifest.version)   fingerprint $($Manifest.fingerprint)" -ForegroundColor Yellow
     Write-Host "  made for Far Far West $($Manifest.game.productVersion)"
     Write-Host ''
 }

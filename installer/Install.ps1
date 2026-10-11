@@ -34,7 +34,7 @@ if ((Get-Sha256 $exe) -ne $Manifest.game.exeSha256) {
 }
 
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-$backup = Join-Path $GameRoot "FFWModpack-backup\$stamp"
+$backup = Join-Path $GameRoot "$($Manifest.name)-backup\$stamp"
 $moved = 0
 
 $previous = Get-InstallRecord $GameRoot
@@ -100,7 +100,7 @@ foreach ($f in $Manifest.files) {
 }
 
 $backups = @(Get-RecordBackups $previous)
-if ($moved -gt 0) { $backups += "FFWModpack-backup\$stamp" }
+if ($moved -gt 0) { $backups += "$($Manifest.name)-backup\$stamp" }
 
 $record = [ordered]@{
     pack = $Manifest.name
@@ -111,6 +111,10 @@ $record = [ordered]@{
     files = $installed
 }
 $record | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $GameRoot $RecordName) -Encoding UTF8
+foreach ($n in $LegacyRecordNames) {   # the record follows the pack's name; its backups are carried over above
+    $old = Join-Path $GameRoot $n
+    if (Test-Path -LiteralPath $old) { Remove-Item -LiteralPath $old -Force }
+}
 
 $problems = Test-PackInstall $GameRoot
 if ($problems.Count -ne 0) {

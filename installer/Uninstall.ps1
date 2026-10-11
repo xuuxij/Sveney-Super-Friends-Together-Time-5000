@@ -8,8 +8,8 @@ $GameRoot = Resolve-GameRoot $GameRoot
 Write-Host "Game folder: $GameRoot"
 Assert-GameClosed
 
-$recordPath = Join-Path $GameRoot $RecordName
-if (-not (Test-Path -LiteralPath $recordPath)) {
+$recordPath = Get-InstallRecordPath $GameRoot
+if (-not $recordPath) {
     Write-Host 'The modpack is not installed in this folder (no install record found).'
     exit 0
 }

@@ -1,6 +1,7 @@
 {
-  "name": "FFWModpack",
-  "version": "1.5.0",
+  "name": "SveneySuperFriendsTogetherTime5000",
+  "title": "Sveney Super Friends Together Time 5000",
+  "version": "1.6.0",
   "game": {
     "productVersion": "0.2.0.20 - CL 915",
     "exeRelativePath": "FarFarWest/Binaries/Win64/FarFarWest-Win64-Shipping.exe",
@@ -19,17 +20,18 @@
   ],
   "vendorTrees": [],
   "notes": [
-    "MorePlayers (Lua) + the ZZZ_FFWModpack_P pak built by tools/morepak replace the third-party More Players mod since pack 1.5.0.",
+    "The pack was called FFWModpack up to 1.5.0: the installer still reads that install record (FFWModpack-installed.json), removes that pack's files and carries its backups over.",
+    "MorePlayers (Lua) + the ZZZ_SveneySuperFriendsTogetherTime5000_P pak built by tools/morepak replace the third-party More Players mod since pack 1.5.0.",
     "UE4SS_Signatures come from halu103/farfarwest-frostburn-modkit (MIT)."
   ],
   "morepak": {
-    "name": "ZZZ_FFWModpack_P",
+    "name": "ZZZ_SveneySuperFriendsTogetherTime5000_P",
     "engineVersion": "UE5_7",
     "retocRepository": "trumank/retoc",
     "retocAsset": "retoc_cli-x86_64-pc-windows-msvc.zip",
     "retocSha256": "cc036b06ad3bdcf7003690b00d82719980c374e48a95bf0654f9959148d263aa"
   },
   "updates": {
-    "repository": "xuuxij/FFWModpack"
+    "repository": "xuuxij/Sveney-Super-Friends-Together-Time-5000"
   }
 }

@@ -1,4 +1,4 @@
--- Shared HUD helpers for the FFWModpack Lua mods (DamageMeter, StatsPanel, Extras).
+-- Shared HUD helpers for the pack's Lua mods (DamageMeter, StatsPanel, Extras).
 -- Builds UMG widgets in code, styled with the game's own fonts, colours and
 -- panel textures (values read from its HUD and tooltip widgets).
 -- Every overlay can be hidden, moved, resized and trimmed to the stats you

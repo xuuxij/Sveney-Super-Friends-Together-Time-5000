@@ -1,10 +1,11 @@
-# FFWModpack
+# Sveney Super Friends Together Time 5000
 
 Far Far West mods built in-house, plus one installer bundle so every player runs identical files.
+The pack was called FFWModpack up to 1.5.0; the installer upgrades that install in place.
 
 ## Download and install
 
-Newest pack: https://github.com/xuuxij/FFWModpack/releases/latest (the `FFWModpack-v*.zip` file under Assets).
+Newest pack: https://github.com/xuuxij/Sveney-Super-Friends-Together-Time-5000/releases/latest (the `SveneySuperFriendsTogetherTime5000-v*.zip` file under Assets).
 
 1. Close Far Far West.
 2. Extract the zip anywhere (Desktop is fine).
@@ -20,11 +21,11 @@ The host ticks "Allow mods" when creating the room. Made for Far Far West 0.2.0.
 - `src/Mods/StatsPanel` – base vs current stats, weapon stats, active Jokers (F6, Ctrl+F6 dumps raw values to UE4SS.log)
 - `src/Mods/Extras` – More Players panel (reads the MorePlayers mod's shared variables), speedometer, auto dash, muzzle flash switch, kill-streak call-outs, and the OPTIONS list in F9 edit mode (Ctrl+F5 dumps every part's state to UE4SS.log); one file per part
 - `src/Mods/MorePlayers` – lobbies of up to 8: lobby cap on the host, player-count scaling continued past 4 (one hook on `F_GetCurveByNumberOfPlayers`), gold magnet table fix, name colours for players 5..8, status for the panel; `settings.txt` next to Scripts
-- `tools/morepak/` – builds `ZZZ_FFWModpack_P` (13 vanilla Blueprints with 16 byte patches: player-count Selects fall back to the 4-player value, 8 lobby rows) from the installed game with retoc; `patches.json` is the spec, `kismet.py` the bytecode disassembler used to derive and re-derive it
+- `tools/morepak/` – builds `ZZZ_SveneySuperFriendsTogetherTime5000_P` (13 vanilla Blueprints with 16 byte patches: player-count Selects fall back to the 4-player value, 8 lobby rows) from the installed game with retoc; `patches.json` is the spec, `kismet.py` the bytecode disassembler used to derive and re-derive it
 - `src/Mods/shared/FFWUi` – shared UMG-in-code helpers
-- `config/` – pack definition (game build lock, UE4SS asset + hash), UE4SS settings, AOB signatures
-- `installer/` – Install/Verify/Uninstall scripts shipped inside the zip
-- `tools/Build-Pack.ps1` – builds `dist/FFWModpack-v<version>.zip`
+- `config/` – pack definition (name, title, version, game build lock, UE4SS asset + hash, pak name, update repository), UE4SS settings, AOB signatures
+- `installer/` – Install/Verify/Update/Uninstall scripts shipped inside the zip
+- `tools/Build-Pack.ps1` – builds `dist/SveneySuperFriendsTogetherTime5000-v<version>.zip`
 - `tools/list_utoc.py` – lists asset paths from the game's IoStore index
 - `dev/FFWProbe` – discovery mod, never shipped
 

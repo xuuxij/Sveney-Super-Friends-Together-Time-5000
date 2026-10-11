@@ -6,19 +6,23 @@ $ErrorActionPreference = 'Stop'
 
 $manifest = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'manifest.json') -Raw | ConvertFrom-Json
 $repo = $manifest.updates.repository
-if (-not $repo) { $repo = 'xuuxij/FFWModpack' }   # packs before 1.5.0 have no updates entry
+if (-not $repo) { $repo = 'xuuxij/Sveney-Super-Friends-Together-Time-5000' }   # packs before 1.5.0 have no updates entry
 $current = [version]$manifest.version
 Write-Host ''
-Write-Host "  $($manifest.name) v$current installed from this folder; checking https://github.com/$repo ..." -ForegroundColor Yellow
+$title = $manifest.name
+if ($manifest.PSObject.Properties['title'] -and $manifest.title) { $title = $manifest.title }
+Write-Host "  $title v$current installed from this folder; checking https://github.com/$repo ..." -ForegroundColor Yellow
 
 try {
-    $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases/latest" -Headers @{ 'User-Agent' = 'FFWModpack-updater' } -TimeoutSec 30
+    $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases/latest" -Headers @{ 'User-Agent' = 'SveneySuperFriendsTogetherTime5000-updater' } -TimeoutSec 30
 } catch {
     throw "Could not reach GitHub: $($_.Exception.Message)"
 }
 $tag = "$($release.tag_name)".TrimStart('v', 'V')
 $latest = [version]$tag
+# The pack zip: by our name first, else the zip that is there (the pack has been renamed once).
 $asset = $release.assets | Where-Object { $_.name -like "$($manifest.name)-v*.zip" } | Select-Object -First 1
+if (-not $asset) { $asset = $release.assets | Where-Object { $_.name -like '*.zip' } | Select-Object -First 1 }
 if (-not $asset) { throw "The newest release ($($release.tag_name)) has no pack zip attached." }
 
 if ($latest -le $current) {
@@ -31,11 +35,11 @@ if (Get-Process -Name 'FarFarWest-Win64-Shipping' -ErrorAction SilentlyContinue)
     throw 'Far Far West is running. Close the game and run this again.'
 }
 
-$zipDir = Join-Path $env:TEMP 'FFWModpack-update'
+$zipDir = Join-Path $env:TEMP "$($manifest.name)-update"
 New-Item -ItemType Directory -Force -Path $zipDir | Out-Null
 $zip = Join-Path $zipDir $asset.name
 Write-Host "Downloading $($asset.name) ($([math]::Round($asset.size / 1MB, 1)) MB)..."
-Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $zip -Headers @{ 'User-Agent' = 'FFWModpack-updater' } -TimeoutSec 300
+Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $zip -Headers @{ 'User-Agent' = 'SveneySuperFriendsTogetherTime5000-updater' } -TimeoutSec 300
 # The new pack folder goes next to this one (the zip holds a single top-level folder).
 $parent = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 Add-Type -AssemblyName System.IO.Compression.FileSystem

@@ -1,11 +1,11 @@
-"""Builds the pack's Blueprint-fix pak (ZZZ_FFWModpack_P) from the installed game's own files.
+"""Builds the pack's Blueprint-fix pak (morepak.name in config/pack.json) from the installed game's own files.
 
   python -I tools/morepak/build_morepak.py [--game <FarFarWest root>] [--out <dir>] [--keep]
 
 Steps: unzip the pinned retoc (hash-checked), convert the vanilla assets listed in patches.json
 from the game's IoStore containers to legacy form, verify their hashes, apply the byte patches
 (each verified against the expected vanilla bytes), convert back to an IoStore container.
-Output: <out>/FarFarWest/Content/Paks/~mods/ZZZ_FFWModpack_P.{utoc,ucas,pak}
+Output: <out>/FarFarWest/Content/Paks/~mods/<morepak.name>.{utoc,ucas,pak}
 Exit code is non-zero if anything does not match; nothing is written to the game folder.
 """
 import argparse
