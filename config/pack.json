@@ -1,0 +1,35 @@
+{
+  "name": "FFWModpack",
+  "version": "1.5.0",
+  "game": {
+    "productVersion": "0.2.0.20 - CL 915",
+    "exeRelativePath": "FarFarWest/Binaries/Win64/FarFarWest-Win64-Shipping.exe",
+    "exeSha256": "8513353F0FCF02AD43233CF7E9440EEBE8F05785F9F7A79C0BC7EC35713070D5"
+  },
+  "ue4ss": {
+    "repository": "UE4SS-RE/RE-UE4SS",
+    "asset": "UE4SS_v3.0.1-1109-g5b2663e9.zip",
+    "sha256": "A1B37C9F10A0563FAB00DAD5DAF902871FE1980A0C27C21AD7776DDB220C5E9C"
+  },
+  "luaMods": [
+    "DamageMeter",
+    "StatsPanel",
+    "Extras",
+    "MorePlayers"
+  ],
+  "vendorTrees": [],
+  "notes": [
+    "MorePlayers (Lua) + the ZZZ_FFWModpack_P pak built by tools/morepak replace the third-party More Players mod since pack 1.5.0.",
+    "UE4SS_Signatures come from halu103/farfarwest-frostburn-modkit (MIT)."
+  ],
+  "morepak": {
+    "name": "ZZZ_FFWModpack_P",
+    "engineVersion": "UE5_7",
+    "retocRepository": "trumank/retoc",
+    "retocAsset": "retoc_cli-x86_64-pc-windows-msvc.zip",
+    "retocSha256": "cc036b06ad3bdcf7003690b00d82719980c374e48a95bf0654f9959148d263aa"
+  },
+  "updates": {
+    "repository": "xuuxij/FFWModpack"
+  }
+}

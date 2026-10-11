@@ -1,0 +1,202 @@
+{
+  "comment": [
+    "Byte patches applied to vanilla Far Far West Blueprints to make them work with 5-8 players.",
+    "Offsets are into the .uexp of the legacy (retoc to-legacy) form of each asset; 'expect' must match",
+    "the vanilla bytes or the build stops. Re-derive after a game update with kismet.py (see README).",
+    "All but one patch are the same change: a Blueprint 'Select' keyed on the player count (1..4) returns",
+    "its zeroed default for 5+ players; the default is pointed at the 4-player value instead. A property",
+    "pointer in bytecode is [FName index int32][FName number int32], number N means suffix _(N-1).",
+    "The other one widens the lobby's player list from 4 to 8 rows. Everything else (lobby cap, enemy",
+    "scaling, gold magnet, colours) is done at runtime by the MorePlayers Lua mod."
+  ],
+  "game": "0.2.0.20 - CL 915",
+  "assets": [
+    {
+      "path": "FarFarWest/Content/Enemies/Structures/BP_Structre_Cryptic_Sigil",
+      "uexpSha256": "46bba226ece03429c5ed7bccce9db9ffead1357b393dc89e43518a673b7bebef",
+      "uassetSha256": "0b64c1b063cb578d5b8348cb74ce704058ecb1ec3dd8fad5e13406b5875efb14",
+      "patches": [
+        {
+          "offset": "0x3089",
+          "expect": "0201000000",
+          "set": "4b01000002",
+          "note": "ubergraph: Select default K2Node_Select_Default -> Temp_int_Variable_1 (4-player value)"
+        }
+      ]
+    },
+    {
+      "path": "FarFarWest/Content/Interfaces/MainMenu/UI_Menu_Container_CurrentSession",
+      "uexpSha256": "8cc8557791538bc4d9526ec6c4879a968c862e11bfa24a7849a5f32e78a71ce4",
+      "uassetSha256": "5d2adc7091f4c779cc74d5951c4b8675a51054ef5d609d19ba4843e2e12c1f02",
+      "patches": [
+        {
+          "offset": "0xBA9",
+          "expect": "03",
+          "set": "07",
+          "note": "ubergraph: player list loop 'index <= 3' -> '<= 7' (8 rows)"
+        }
+      ]
+    },
+    {
+      "path": "FarFarWest/Content/Items/BP_Item_Downloader",
+      "uexpSha256": "a1f3d56e53342773fa64019acef39df8822bd62c1ac84424385adf02b797e863",
+      "uassetSha256": "b430de0dbf78c7b4eb07bdc3ee904c5c1928d689d6447e178aec81fed4dad2ab",
+      "patches": [
+        {
+          "offset": "0x1AAE",
+          "expect": "65",
+          "set": "9e",
+          "note": "ubergraph: Select default -> Temp_real_Variable (4-player value)"
+        }
+      ]
+    },
+    {
+      "path": "FarFarWest/Content/Levels/Assets/Woodlands/BP_Woodlands_ShroomStone",
+      "uexpSha256": "ec83c10142f37c0dab4f8ba6cbf6d43f987e4896204275709632bc2b9354f0d3",
+      "uassetSha256": "2683ae8b0a00664b58ae8695beefae5f3ea15fd8dfcdec32f3e6879fef227bc6",
+      "patches": [
+        {
+          "offset": "0x1BC1",
+          "expect": "f000000000",
+          "set": "2f01000005",
+          "note": "ubergraph: Select default -> Temp_real_Variable_4"
+        },
+        {
+          "offset": "0x1CCA",
+          "expect": "f000000000",
+          "set": "2f01000005",
+          "note": "ubergraph: second Select default -> Temp_real_Variable_4"
+        }
+      ]
+    },
+    {
+      "path": "FarFarWest/Content/Modifiers/BP_Modifier_Halloween",
+      "uexpSha256": "f236fbfd0ce6874b061dadc1f1f6ecc725c16ec12f3b1db330ba8903344d0e1a",
+      "uassetSha256": "4d1ebca8c3c0b58b1a2f17a26dadbf7649b5596a550e088021b15dda3e0f9ad6",
+      "patches": [
+        {
+          "offset": "0x125F",
+          "expect": "4000000000",
+          "set": "5400000003",
+          "note": "ubergraph: Select default -> Temp_real_Variable_2"
+        }
+      ]
+    },
+    {
+      "path": "FarFarWest/Content/Modifiers/BP_Modifier_HellFire",
+      "uexpSha256": "3d42432ac4cf0950a43e3c9d2cb335fdc5f46fd8c76efc70ddc69e8349f04f78",
+      "uassetSha256": "4c7e1f38f2924e5a5cc5dd7b23faa69db2874908e278da1c1dfe6c48cde1363d",
+      "patches": [
+        {
+          "offset": "0xB5C",
+          "expect": "3200000000",
+          "set": "4100000005",
+          "note": "ubergraph: Select default -> Temp_real_Variable_4"
+        }
+      ]
+    },
+    {
+      "path": "FarFarWest/Content/Objectives/Assets/Batteries/BP_KwartPillarButton",
+      "uexpSha256": "b2df1d71e5abc2a2b0daad0b453419e59751eefff76af8f8b4b95e12f38670ab",
+      "uassetSha256": "4558f421bd1c89b105325558854c6a93e413fb9560c560bb6981202286230d96",
+      "patches": [
+        {
+          "offset": "0x3ED2",
+          "expect": "c900000000",
+          "set": "0901000002",
+          "note": "F_AssignWrongs: Select default -> Temp_int_Variable_1"
+        }
+      ]
+    },
+    {
+      "path": "FarFarWest/Content/Objectives/Assets/DrillingMachine/BP_Gauge_DrillMachine",
+      "uexpSha256": "d427cb9bc1b67f5dd4c59268454bfa75895b4488cb4c266af9ab2d8df2693eeb",
+      "uassetSha256": "14bbfba87e9e4e168b4beafcd77c8ab790cedbf369016c685645ed96315cf85d",
+      "patches": [
+        {
+          "offset": "0x5263",
+          "expect": "e900",
+          "set": "3501",
+          "note": "F_GetValueOverTimeBaseOnPlayerCount: Select default -> Temp_real_Variable"
+        }
+      ]
+    },
+    {
+      "path": "FarFarWest/Content/Objectives/Assets/LaserCanon/BP_LaserCanon_Manager",
+      "uexpSha256": "8dbdc7522dd643c505befdf2c3c7f1bb0c6323275c62db393056ef73c3d5f8f4",
+      "uassetSha256": "22689ae547f398eeb29734397658ee1283a8963e5789f22cdfd4308885dd5db7",
+      "patches": [
+        {
+          "offset": "0x4BA5",
+          "expect": "ca00000000",
+          "set": "f800000006",
+          "note": "F_OpenRandomVent: Select default -> Temp_int_Variable_5"
+        }
+      ]
+    },
+    {
+      "path": "FarFarWest/Content/Objectives/Assets/Shredder/BP_KwartShredder",
+      "uexpSha256": "3fe836f517f7e6fd77f59ce9fc44f838de0d58d10de902e1784872ad7d47e7c3",
+      "uassetSha256": "c6c2a508ac49fe23edfafa9c79247c16a428819eabf4025f82536fec3f92c9fb",
+      "patches": [
+        {
+          "offset": "0x14CC",
+          "expect": "57",
+          "set": "8b",
+          "note": "ubergraph: Select default -> Temp_real_Variable"
+        }
+      ]
+    },
+    {
+      "path": "FarFarWest/Content/Objectives/Assets/TntMissile/BP_TntMissileLauncher",
+      "uexpSha256": "d6a3693979f206b747bd5b97ef4a755324b60356556c81b389bf41cddaed88de",
+      "uassetSha256": "3dcfdbc02744e2a91b0cca2ee3d8a6b62cd3ad9589d7e790be0f41d3383635af",
+      "patches": [
+        {
+          "offset": "0x3C76",
+          "expect": "6901000002",
+          "set": "d501000000",
+          "note": "ubergraph: requiredTnt Select default -> Temp_int_Variable (4-player value)"
+        },
+        {
+          "offset": "0x3EEA",
+          "expect": "6901000000",
+          "set": "d501000007",
+          "note": "ubergraph: timeRequiredToEnableAllLevers Select default -> Temp_int_Variable_6 (4-player value)"
+        }
+      ]
+    },
+    {
+      "path": "FarFarWest/Content/Objectives/Assets/Totem/BP_CrypticTotem",
+      "uexpSha256": "aa05186b30481b8e19191cc55c18d94584481783c0a770b1abdd62ebb2d84084",
+      "uassetSha256": "db59186d9b7cb6a84a7dd1d58b6f3682ea2b3c7c8e74a340452c7a47c4d3e6cd",
+      "patches": [
+        {
+          "offset": "0x2C19",
+          "expect": "1901000002",
+          "set": "6701000006",
+          "note": "ubergraph: required-enemies Select default -> Temp_int_Variable_5 (4-player value)"
+        }
+      ]
+    },
+    {
+      "path": "FarFarWest/Content/Quests/Assets/BP_DrSparkTwist_MarauderSpawner",
+      "uexpSha256": "967c48bb654e9c7fc8af519c2dd5b077c14f9bf75d5a23801ac2826cf6bdce33",
+      "uassetSha256": "994751b6ed6a1a6ec107ebe7412e83b5664ebfeb50de739807b56b5bc220803d",
+      "patches": [
+        {
+          "offset": "0x5590",
+          "expect": "d900000000",
+          "set": "0801000002",
+          "note": "F_SpawnMarauders: Select default -> Temp_int_Variable_1"
+        },
+        {
+          "offset": "0x58FB",
+          "expect": "d900000000",
+          "set": "0801000002",
+          "note": "F_SpawnMarauders: second Select default -> Temp_int_Variable_1"
+        }
+      ]
+    }
+  ]
+}

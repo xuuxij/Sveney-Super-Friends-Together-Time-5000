@@ -1,0 +1,9 @@
+dist/
+vendor/
+dev/sdk/
+dev/crashes/
+__pycache__/
+dev/harness/backup/
+dev/harness/cmd.lua
+dev/harness/*.png
+dev/harness/backup-moreplayers/
