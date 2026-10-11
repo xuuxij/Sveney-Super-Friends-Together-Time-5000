@@ -31,7 +31,7 @@ AUDIT = [re.compile(p, re.I) for p in (
     r'colinmcman', r'\bcolin\b', r'um-pc', r'gmail', r'192\.168\.\d+\.\d+', r'\b10\.\d+\.\d+\.\d+\b',
     r'claude\.ai', r'co-authored-by', r'claude-session', r'users\\[a-z]', r'/users/[a-z]',
 )]
-AUDIT_SKIP_EXT = {'.dll', '.exe', '.pak', '.ucas', '.utoc', '.png'}
+AUDIT_SKIP_EXT = {'.dll', '.exe', '.pak', '.ucas', '.utoc', '.png', '.jpg', '.jpeg'}
 
 
 def run(args, cwd=None, check=True, env=None):

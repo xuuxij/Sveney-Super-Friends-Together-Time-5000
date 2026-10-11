@@ -15,6 +15,12 @@ The pack was called FFWModpack up to 1.5.0; the installer upgrades that install 
 - **F9 edit mode**: move and resize the panels, switch any of the extras on or off.
 - **One installer**: everyone gets exactly the same files. Verify.bat shows a fingerprint that must match the host's. Update.bat gets the newest pack.
 
+![Saloon: stats panel and damage meter top left, More Players panel and speedometer on the right](docs/screenshots/saloon.jpg)
+
+![On a mission: the same panels over the game HUD](docs/screenshots/mission.jpg)
+
+Both shots are from a one-player test, so the numbers sit at zero and x1.00; they fill in with a team.
+
 ## Download and install
 
 Newest pack: https://github.com/xuuxij/Sveney-Super-Friends-Together-Time-5000/releases/latest (the `SveneySuperFriendsTogetherTime5000-v*.zip` file under Assets).
