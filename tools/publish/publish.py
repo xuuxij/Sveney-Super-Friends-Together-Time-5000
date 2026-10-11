@@ -99,7 +99,7 @@ def main():
     if os.path.isdir(os.path.join(STAGING, '.git')):
         log = run(['git', 'log', '--format=%an <%ae> %ad', '--date=iso-strict'], cwd=STAGING, check=False).stdout
         for line in log.splitlines():
-            if IDENTITY[1] not in line or not line.endswith('+00:00'):
+            if IDENTITY[1] not in line or not (line.endswith('+00:00') or line.endswith('Z')):  # git prints UTC as Z
                 hits.append('git history: ' + line)
     if hits:
         print('AUDIT FAILED, nothing published:')

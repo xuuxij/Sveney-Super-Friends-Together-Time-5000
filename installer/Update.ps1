@@ -6,6 +6,7 @@ $ErrorActionPreference = 'Stop'
 
 $manifest = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'manifest.json') -Raw | ConvertFrom-Json
 $repo = $manifest.updates.repository
+if (-not $repo) { $repo = 'xuuxij/FFWModpack' }   # packs before 1.5.0 have no updates entry
 $current = [version]$manifest.version
 Write-Host ''
 Write-Host "  $($manifest.name) v$current installed from this folder; checking https://github.com/$repo ..." -ForegroundColor Yellow
@@ -30,21 +31,28 @@ if (Get-Process -Name 'FarFarWest-Win64-Shipping' -ErrorAction SilentlyContinue)
     throw 'Far Far West is running. Close the game and run this again.'
 }
 
-$work = Join-Path $env:TEMP "FFWModpack-update\$tag"
-if (Test-Path -LiteralPath $work) { Remove-Item -LiteralPath $work -Recurse -Force }
-New-Item -ItemType Directory -Force -Path $work | Out-Null
-$zip = Join-Path $work $asset.name
+$zipDir = Join-Path $env:TEMP 'FFWModpack-update'
+New-Item -ItemType Directory -Force -Path $zipDir | Out-Null
+$zip = Join-Path $zipDir $asset.name
 Write-Host "Downloading $($asset.name) ($([math]::Round($asset.size / 1MB, 1)) MB)..."
 Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $zip -Headers @{ 'User-Agent' = 'FFWModpack-updater' } -TimeoutSec 300
+# The new pack folder goes next to this one (the zip holds a single top-level folder).
+$parent = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 Add-Type -AssemblyName System.IO.Compression.FileSystem
-[System.IO.Compression.ZipFile]::ExtractToDirectory($zip, $work)
-$install = Get-ChildItem -LiteralPath $work -Recurse -Filter 'Install.ps1' | Select-Object -First 1
+$archive = [System.IO.Compression.ZipFile]::OpenRead($zip)
+try { $top = ($archive.Entries[0].FullName -split '/')[0] } finally { $archive.Dispose() }
+$dest = Join-Path $parent $top
+if (Test-Path -LiteralPath $dest) { Remove-Item -LiteralPath $dest -Recurse -Force }
+[System.IO.Compression.ZipFile]::ExtractToDirectory($zip, $parent)
+Remove-Item -LiteralPath $zip -Force
+$install = Get-ChildItem -LiteralPath $dest -Recurse -Filter 'Install.ps1' | Select-Object -First 1
 if (-not $install) { throw 'The downloaded zip has no Install.ps1 in it.' }
 
 Write-Host ''
 Write-Host "Installing v$latest ..." -ForegroundColor Yellow
-& $install.FullName
+# A child PowerShell so the exit code is the installer's own.
+& powershell -NoProfile -ExecutionPolicy Bypass -File $install.FullName
 if ($LASTEXITCODE -ne 0) { throw 'The install reported a problem (see above).' }
 Write-Host ''
-Write-Host "Updated to v$latest. The new pack folder is $($install.Directory.Parent.FullName); you can delete this old one." -ForegroundColor Green
+Write-Host "Updated to v$latest. The new pack folder is $dest (next to this one); you can delete this old one." -ForegroundColor Green
 Write-Host 'Everyone in the lobby needs the same version: tell the others to run Update.bat too.'
