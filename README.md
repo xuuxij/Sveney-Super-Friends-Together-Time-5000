@@ -3,6 +3,18 @@
 Far Far West mods built in-house, plus one installer bundle so every player runs identical files.
 The pack was called FFWModpack up to 1.5.0; the installer upgrades that install in place.
 
+## What it does
+
+- **More players**: up to 8 in a lobby instead of 4. Enemies keep getting tougher past 4 players, the objectives that break with 5 or more players work, and players 5 to 8 get their own name colours.
+- **Damage meter**: live damage per second, total damage, kills and a graph on the left of the screen. F7 shows or hides it, F8 resets it.
+- **Stats panel**: your stats, your weapon's stats and what each Joker adds. F6 shows or hides it.
+- **Speedometer**: how fast you are moving, and your top speed.
+- **Auto dash**: hold the dash button and you dash again every time you land.
+- **Muzzle flash off**: your own gun's flash no longer blocks your aim.
+- **Kill streaks**: call-outs at 10, 25, 50, 100 and 200 kills in a row.
+- **F9 edit mode**: move and resize the panels, switch any of the extras on or off.
+- **One installer**: everyone gets exactly the same files. Verify.bat shows a fingerprint that must match the host's. Update.bat gets the newest pack.
+
 ## Download and install
 
 Newest pack: https://github.com/xuuxij/Sveney-Super-Friends-Together-Time-5000/releases/latest (the `SveneySuperFriendsTogetherTime5000-v*.zip` file under Assets).
