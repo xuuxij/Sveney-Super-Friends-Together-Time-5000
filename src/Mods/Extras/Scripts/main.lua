@@ -4,6 +4,8 @@
 --   Auto dash           hold the dash button and you dash again each time you land
 --   Muzzle flash        can be switched off
 --   Kill streaks        MULTI KILL, MEGA KILL ... called out to the whole team
+--   Clear zone          markers, pings and icons fade inside a circle around
+--                       the crosshair, so you see what you aim at
 --   Teammate hits       the teammate your shot lands on flashes in a colour
 --                       you pick, your hit marker takes that colour and an
 --                       error sound plays
@@ -14,7 +16,7 @@
 --   Ctrl+F5             write what every part is doing to UE4SS.log
 -- Each part lives in its own file next to this one.
 
-local MOD_VERSION = "1.1.0"
+local MOD_VERSION = "1.2.0"
 
 local CONFIG = {
     REFRESH_MS = 16,         -- landing checks and the dial needle
@@ -47,6 +49,7 @@ local speedometer = require("speedometer")
 local autodash = require("autodash")
 local muzzle = require("muzzle")
 local announcer = require("announcer")
+local clearzone = require("clearzone")
 local friendlyfire = require("friendlyfire")
 local spinsound = require("spinsound")
 
@@ -54,7 +57,8 @@ local spinsound = require("spinsound")
 -- Options (edit mode only)
 ---------------------------------------------------------------------------
 -- panel: the row shows / hides that panel. Otherwise key is a switch read by a part.
--- slider: the row also has a 0..100 slider, kept under that name.
+-- slider: the row also has a 0..100 slider, kept under that name (default: where
+-- it starts, 100 if not given; format: how its value is written, "70%" if not given).
 -- swatches: the row is a choice of colours ({ name, rgb } each), with no
 -- switch; the number of the picked one is kept under key.
 -- changed runs (game thread) when the switch, the slider or the pick changes.
@@ -64,6 +68,9 @@ local OPTIONS = {
     { key = "autodash", label = "Auto dash", hint = "keep dash held to dash again on every landing" },
     { key = "muzzle", label = "Muzzle flash", hint = "off: your own gun's flash no longer blocks your aim" },
     { key = "announcer", label = "Kill streaks", hint = "kills in a row: big text + sound, 25+ to team chat" },
+    { key = "clearzone", label = "Clear zone at crosshair", hint = "markers fade inside the ring: drag for its size",
+        slider = "clearzonepx", default = 50, format = function(pct) return (pct * 6) .. " px" end,
+        changed = function(pc) clearzone.changed(pc) end },
     { key = "ffglow", label = "Teammate hit glow", hint = "a teammate you hit flashes in your colour" },
     { key = "ffmarker", label = "Teammate hit marker", hint = "your hit marker turns that colour too",
         changed = function(pc) friendlyfire.preview(pc, "marker") end },
@@ -91,7 +98,7 @@ local options -- overlay, made below
 local pendingChange = {} -- option key -> its switch was clicked (set on the input thread)
 
 local function sliderPercent(o)
-    local pct = tonumber(options:value(o.slider, 100)) or 100
+    local pct = tonumber(options:value(o.slider, o.default or 100)) or 100
     return math.max(0, math.min(100, math.floor(pct + 0.5)))
 end
 
@@ -196,7 +203,7 @@ local function renderOptions(ui, pc)
             FFWUi.setCheck(ui.checks[i], on)
         end
         if o.slider then
-            if on then state = sliderPercent(o) .. "%" end
+            if on then state = o.format and o.format(sliderPercent(o)) or (sliderPercent(o) .. "%") end
             FFWUi.setDim(ui.sliders[i], not on)
         end
         FFWUi.setText(ui.states[i], state)
@@ -228,6 +235,7 @@ speedometer.init(ctx)
 autodash.init(ctx)
 muzzle.init(ctx)
 announcer.init(ctx)
+clearzone.init(ctx)
 friendlyfire.init(ctx)
 spinsound.init(ctx)
 
@@ -262,6 +270,8 @@ local function destroyUi()
     speedometer.destroy()
     announcer.destroy()
     options:destroy()
+    clearzone.destroy()
+    clearzone.reset()
     spinsound.reset()
     friendlyfire.reset()
 end
@@ -282,6 +292,7 @@ function slowTick(pc, t)
     moreplayers.tick(pc, t)
     muzzle.tick(pc, t, inGame)
     announcer.tick(pc, t, inGame)
+    clearzone.tick(pc, t, inGame)
     friendlyfire.tick(pc, t, inGame)
     spinsound.tick(pc, t)
     local ui = options:update(pc, ctx.active(pc))
@@ -305,12 +316,14 @@ local function tick()
         speedometer.reset()
         muzzle.reset()
         announcer.reset()
+        clearzone.reset()
         friendlyfire.reset()
     end
     autodash.tick(pc, t, FFWUi.inGame(pc))
     speedometer.tick(pc, t)
     announcer.fastTick(pc, t)
     friendlyfire.fastTick(pc, t)
+    clearzone.fastTick(pc, t)
     if options:editing() then -- the sliders follow the mouse on every frame
         local ui = options:update(pc, ctx.active(pc))
         if ui then pollSliders(ui, pc) end
@@ -329,7 +342,7 @@ local function dump()
     for _, o in ipairs(OPTIONS) do
         log(string.format("  option %-20s %s", o.label, o.swatches and o.swatches[swatchIndex(o)].name or (optionOn(o) and "on" or "off")))
     end
-    for _, part in ipairs({ moreplayers, speedometer, autodash, muzzle, announcer, friendlyfire, spinsound }) do
+    for _, part in ipairs({ moreplayers, speedometer, autodash, muzzle, announcer, clearzone, friendlyfire, spinsound }) do
         local ok, err = pcall(part.dump)
         if not ok then log("  dump error: " .. tostring(err)) end
     end
