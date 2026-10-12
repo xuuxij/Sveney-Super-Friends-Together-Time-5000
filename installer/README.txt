@@ -30,9 +30,22 @@ WHAT'S IN IT
     MEGA KILL at 25, ULTRA KILL at 50, MONSTER KILL at 100 and GODLIKE at
     200 are called out to the whole team: big text, a sound and a line in
     chat. More than 4 seconds without a kill ends a streak.
+  - Teammate hits: the game lets you hurt your friends (half damage) and
+    shows you the same hit marker as for an enemy. Now a teammate your shot
+    lands on flashes brightly, your hit marker changes colour and a short
+    error buzz plays (at most twice a second). You pick the colour, blue to
+    start with; the glow, the marker and the sound each have their own
+    switch. Only you see and hear it.
+  - Minigun spin sound: a volume slider and a mute box for the barrel whine
+    of every minigun you hear, yours and your team's. Only changes your own
+    sound; the gunfire itself stays as it is.
   - F9 = edit mode: frees the mouse so you can
       * switch the speedometer, the More Players panel, auto dash, muzzle
-        flash and kill streaks on or off in the OPTIONS list
+        flash, kill streaks and the teammate hit glow, marker and sound on
+        or off in the OPTIONS list
+      * click a colour there for the teammate hit glow and marker
+      * drag the Minigun spin sound slider there to set its volume (you
+        hear a short sample), or untick its box to mute it
       * click a panel to move it, click again to put it down
       * click its bottom-right corner to resize it, click again when done
       * click the boxes next to stats to show or hide them (a few extra

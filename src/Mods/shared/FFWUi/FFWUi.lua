@@ -8,8 +8,10 @@ local UEHelpers = require("UEHelpers")
 
 local M = {}
 
+M.VIS_VISIBLE = 0
 M.VIS_HIDDEN = 2
 M.VIS_HIT_TEST_INVISIBLE = 3
+M.VIS_SELF_HIT_TEST_INVISIBLE = 4
 M.VIS_COLLAPSED = 1
 
 M.LAYOUT_KEY = Key.F9
@@ -69,6 +71,9 @@ end
 local assets = {}
 
 -- Finds (or loads) a game asset by object path; nil when it is missing.
+-- Call it from a tick, never from inside a RegisterHook callback: loading
+-- there froze the game. Nothing keeps a loaded asset in memory, so it can be
+-- gone again a minute later.
 function M.asset(path)
     local o = assets[path]
     if isValid(o) then return o end
@@ -174,6 +179,8 @@ end
 
 -- A full-screen UserWidget holding one "frame" canvas; everything a panel
 -- draws sits inside the frame, so moving the panel is one slot update.
+-- opts.interactive: the panel holds a slider, so the mouse can reach inside it
+-- (every other panel lets the mouse through to the game).
 function M.newPanel(name, opts)
     opts = opts or {}
     local gi = UEHelpers.GetGameInstance()
@@ -192,6 +199,7 @@ function M.newPanel(name, opts)
     return setmetatable({
         root = root, tree = tree, canvas = canvas, frame = frame, frameSlot = frameSlot,
         prefix = prefix, count = 0, zOrder = opts.zOrder or 50, shown = nil, opacity = 1, scale = 1,
+        visShown = opts.interactive and M.VIS_SELF_HIT_TEST_INVISIBLE or M.VIS_HIT_TEST_INVISIBLE,
     }, Panel)
 end
 
@@ -246,6 +254,70 @@ function Panel:checkbox(x, y)
     return { widget = g.widget, slot = g.slot, mark = g:box(4, 4, 6, 6, M.COLORS.gold) }
 end
 
+-- A slider the mouse can drag while edit mode has the cursor free; the panel
+-- must be made interactive. The engine's own slider takes the mouse and is
+-- drawn see-through; the track, fill and knob are ours, in the HUD's colours.
+-- step: the value snaps to multiples of it (0..1).
+local KNOB_W = 10
+function Panel:slider(x, y, w, h, step)
+    local g = self:group(x, y, w, h)
+    local mid = math.floor(h / 2)
+    g:box(0, mid - 3, w, 6, M.COLORS.gold)
+    g:box(1, mid - 2, w - 2, 4, { R = 0, G = 0, B = 0, A = 0.9 })
+    local s = {
+        widget = g.widget, slot = g.slot, group = g, w = w, h = h, mid = mid, thumb = KNOB_W,
+        fill = g:box(1, mid - 2, 1, 4, M.COLORS.gold),
+        knob = g:box(0, 0, KNOB_W, h, M.COLORS.gold),
+    }
+    local sl = construct("/Script/UMG.Slider", self.tree, self:_name("Slider"))
+    -- Set before the panel is shown: the engine reads these when it builds the widget.
+    pcall(function()
+        sl.IsFocusable = false -- keyboard and gamepad stay with the game
+        sl.MouseUsesStep = true
+        sl.StepSize = step or 0.05
+        sl.IndentHandle = false
+    end)
+    pcall(function()
+        local st = sl.WidgetStyle
+        for _, k in ipairs({ "NormalThumbImage", "HoveredThumbImage", "DisabledThumbImage" }) do st[k].ImageSize.X = KNOB_W end
+    end)
+    -- The width the engine takes for its handle decides where a click lands.
+    s.thumb = try(function() return sl.WidgetStyle.NormalThumbImage.ImageSize.X end) or KNOB_W
+    pcall(function()
+        sl:SetSliderBarColor(M.COLORS.clear)
+        sl:SetSliderHandleColor(M.COLORS.clear)
+    end)
+    g:place(sl, 0, 0, w, h)
+    sl:SetVisibility(M.VIS_VISIBLE)
+    s.input = sl
+    return s
+end
+
+-- Where the player has dragged the slider to (0..1), or nil.
+function M.sliderValue(s)
+    local v = try(function() return s.input:GetValue() end)
+    if type(v) ~= "number" then return nil end
+    return clamp(v, 0, 1)
+end
+
+-- Draws the slider at v (0..1).
+function M.setSlider(s, v)
+    v = clamp(v, 0, 1)
+    if s.value == v then return end
+    s.value = v
+    -- The knob's centre runs from half a handle in to half a handle from the end.
+    local cx = s.thumb / 2 + v * (s.w - s.thumb)
+    s.group:move(s.knob.slot, math.floor(cx - KNOB_W / 2 + 0.5), 0)
+    s.group:move(s.fill.slot, 1, s.mid - 2, math.max(1, math.floor(cx) - 1), 4)
+end
+
+-- Puts the slider at v from code (a saved value); what the player drags it to
+-- is read with sliderValue.
+function M.moveSlider(s, v)
+    pcall(function() s.input:SetValue(clamp(v, 0, 1)) end)
+    M.setSlider(s, v)
+end
+
 -- Coordinates below are relative to the panel's top-left corner.
 function Panel:place(widget, x, y, w, h)
     local slot = self.frame:AddChildToCanvas(widget)
@@ -285,6 +357,7 @@ function Panel:text(x, y, size, color, opts)
     end)
     tb:SetColorAndOpacity({ SpecifiedColor = color, ColorUseRule = 0 })
     tb:SetText(FText(""))
+    tb:SetVisibility(M.VIS_HIT_TEST_INVISIBLE)
     local slot
     if opts.width then
         tb:SetJustification(opts.justify or 0)
@@ -315,6 +388,7 @@ function Panel:image(x, y, w, h, color, brush)
         end)
     end
     img:SetColorAndOpacity(color)
+    img:SetVisibility(M.VIS_HIT_TEST_INVISIBLE)
     local slot = self:place(img, x, y, w, h)
     return { widget = img, slot = slot, color = color }
 end
@@ -412,7 +486,7 @@ end
 
 function Panel:setShown(want)
     if self.shown ~= want then
-        self.root:SetVisibility(want and M.VIS_HIT_TEST_INVISIBLE or M.VIS_HIDDEN)
+        self.root:SetVisibility(want and self.visShown or M.VIS_HIDDEN)
         self.shown = want
     end
 end
@@ -457,6 +531,16 @@ local function parseItems(v)
     return t
 end
 
+-- values: "key:0.7|key:12" (numbers set in edit mode: a volume, say)
+local function parseValues(v)
+    local t = {}
+    for part in tostring(v or ""):gmatch("[^|]+") do
+        local k, n = part:match("^(.*):([^:]+)$")
+        if k and k ~= "" and tonumber(n) then t[k] = tonumber(n) end
+    end
+    return t
+end
+
 function Overlay:_save()
     local c = self.cfg
     local ok, err = pcall(function()
@@ -465,6 +549,10 @@ function Overlay:_save()
         table.sort(keys)
         local items = {}
         for _, k in ipairs(keys) do items[#items + 1] = k .. ":" .. (c.items[k] and "1" or "0") end
+        local vkeys, values = {}, {}
+        for k in pairs(c.values) do vkeys[#vkeys + 1] = k end
+        table.sort(vkeys)
+        for _, k in ipairs(vkeys) do values[#values + 1] = string.format("%s:%g", k, c.values[k]) end
         local f = io.open(self.def.settings, "w")
         if not f then return end
         local key = self.def.keyName and (", " .. self.def.keyName .. " shows/hides it") or ""
@@ -472,6 +560,7 @@ function Overlay:_save()
         f:write("# Delete this file to reset.\n")
         f:write(string.format("shown=%d\nax=%g\nay=%g\nx=%d\ny=%d\nscale=%g\nitems=%s\n",
             c.shown and 1 or 0, c.ax, c.ay, c.x, c.y, c.scale, table.concat(items, "|")))
+        if #values > 0 then f:write("values=" .. table.concat(values, "|") .. "\n") end
         f:close()
     end)
     if not ok then log("could not save " .. tostring(self.def.settings) .. ": " .. tostring(err)) end
@@ -486,7 +575,8 @@ end
 -- def: id, title, keyName, z, toggleKey, shown (default), pos {ax, ay, x, y},
 --      width, height, settings (file path), build(panel, overlay) -> ui,
 --      refresh() (redraw now, game thread), banner,
---      editOnly (a settings panel: on screen in edit mode and never outside it)
+--      editOnly (a settings panel: on screen in edit mode and never outside it),
+--      interactive (it holds a slider: see newPanel)
 function M.overlay(def)
     local s = readSettings(def.settings)
     local d = def.pos
@@ -500,6 +590,7 @@ function M.overlay(def)
             x = math.floor(tonumber(s.x) or d.x), y = math.floor(tonumber(s.y) or d.y),
             scale = clamp(tonumber(s.scale) or 1, M.MIN_SCALE, M.MAX_SCALE),
             items = parseItems(s.items),
+            values = parseValues(s.values),
         },
         panel = nil, ui = nil, deco = nil, rect = nil, grabbed = false, active = false,
     }, Overlay)
@@ -520,6 +611,19 @@ function Overlay:itemShown(key, default)
     local v = self.cfg.items[key]
     if v == nil then return default ~= false end
     return v
+end
+
+-- A number set in edit mode, remembered with the overlay's other settings.
+function Overlay:value(key, default)
+    local v = self.cfg.values[key]
+    if v == nil then return default end
+    return v
+end
+
+function Overlay:setValue(key, v)
+    if self.cfg.values[key] == v then return end
+    self.cfg.values[key] = v
+    self:_save()
 end
 
 -- Tick-box hit areas, { { key, default, x, y, w, h } } in unscaled panel coordinates.
@@ -609,7 +713,7 @@ function Overlay:setSize(w, h)
 end
 
 function Overlay:_build()
-    local p = M.newPanel(self.id, { zOrder = self.z })
+    local p = M.newPanel(self.id, { zOrder = self.z, interactive = self.def.interactive })
     if not p then return end
     local ok, ui = pcall(self.def.build, p, self)
     if not ok or not ui then
