@@ -36,6 +36,14 @@ WHAT'S IN IT
     pixels from the crosshair to start with; drag its slider in OPTIONS to
     change that (a dotted ring shows the size while you do). Enemy health
     bars and damage numbers stay as they are. Only changes your own screen.
+  - Teammate arrows: a teammate who is off your screen and more than 50 m
+    away gets an arrow at the edge of the screen, in their colour, pointing
+    the way to turn, with the distance under it. A circle of dots fills in
+    around the arrow, one dot for every 10 m past those 50 m (a full circle
+    is 200 m past). From half full the arrow blinks and beats like a heart,
+    faster and harder the further away they are, up to 1000 m. In OPTIONS:
+    the distance on a slider, arrows for every teammate or only the closest
+    one, and the distance text on or off. Only changes your own screen.
   - Teammate hits: the game lets you hurt your friends (half damage) and
     shows you the same hit marker as for an enemy. Now a teammate your shot
     lands on flashes brightly, your hit marker changes colour and a short
@@ -52,6 +60,9 @@ WHAT'S IN IT
       * click a colour there for the teammate hit glow and marker
       * drag the Clear zone slider for the size of the circle, or untick
         its box to leave the markers alone
+      * drag the Teammate arrows slider for the distance (a sample arrow on
+        the left shows every distance while you do), untick it to switch
+        the arrows off, and choose every teammate or only the closest one
       * drag the Minigun spin sound slider there to set its volume (you
         hear a short sample), or untick its box to mute it
       * click a panel to move it, click again to put it down

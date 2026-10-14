@@ -6,6 +6,9 @@
 --   Kill streaks        MULTI KILL, MEGA KILL ... called out to the whole team
 --   Clear zone          markers, pings and icons fade inside a circle around
 --                       the crosshair, so you see what you aim at
+--   Teammate arrows     an arrow at the screen's edge points to a teammate
+--                       who is off screen and far away; a circle of dots
+--                       fills in with the distance, and far out it beats
 --   Teammate hits       the teammate your shot lands on flashes in a colour
 --                       you pick, your hit marker takes that colour and an
 --                       error sound plays
@@ -16,7 +19,7 @@
 --   Ctrl+F5             write what every part is doing to UE4SS.log
 -- Each part lives in its own file next to this one.
 
-local MOD_VERSION = "1.2.0"
+local MOD_VERSION = "1.3.0"
 
 local CONFIG = {
     REFRESH_MS = 16,         -- landing checks and the dial needle
@@ -50,6 +53,7 @@ local autodash = require("autodash")
 local muzzle = require("muzzle")
 local announcer = require("announcer")
 local clearzone = require("clearzone")
+local teamarrows = require("teamarrows")
 local friendlyfire = require("friendlyfire")
 local spinsound = require("spinsound")
 
@@ -71,6 +75,11 @@ local OPTIONS = {
     { key = "clearzone", label = "Clear zone at crosshair", hint = "markers fade inside the ring: drag for its size",
         slider = "clearzonepx", default = 50, format = function(pct) return (pct * 6) .. " px" end,
         changed = function(pc) clearzone.changed(pc) end },
+    { key = "tmarrows", label = "Teammate arrows", hint = "at the screen's edge, for teammates further than this",
+        slider = "tmarrowm", default = 10, format = function(pct) return (pct * 5) .. " m" end,
+        changed = function(pc) teamarrows.changed(pc) end },
+    { key = "tmall", label = "Arrows for every teammate", hint = "off: only the closest one past that distance", off = "CLOSEST" },
+    { key = "tmdist", label = "Distance under arrows", hint = "how many metres away, under each arrow" },
     { key = "ffglow", label = "Teammate hit glow", hint = "a teammate you hit flashes in your colour" },
     { key = "ffmarker", label = "Teammate hit marker", hint = "your hit marker turns that colour too",
         changed = function(pc) friendlyfire.preview(pc, "marker") end },
@@ -236,6 +245,7 @@ autodash.init(ctx)
 muzzle.init(ctx)
 announcer.init(ctx)
 clearzone.init(ctx)
+teamarrows.init(ctx)
 friendlyfire.init(ctx)
 spinsound.init(ctx)
 
@@ -272,6 +282,8 @@ local function destroyUi()
     options:destroy()
     clearzone.destroy()
     clearzone.reset()
+    teamarrows.destroy()
+    teamarrows.reset()
     spinsound.reset()
     friendlyfire.reset()
 end
@@ -293,6 +305,7 @@ function slowTick(pc, t)
     muzzle.tick(pc, t, inGame)
     announcer.tick(pc, t, inGame)
     clearzone.tick(pc, t, inGame)
+    teamarrows.tick(pc, t, inGame)
     friendlyfire.tick(pc, t, inGame)
     spinsound.tick(pc, t)
     local ui = options:update(pc, ctx.active(pc))
@@ -317,6 +330,7 @@ local function tick()
         muzzle.reset()
         announcer.reset()
         clearzone.reset()
+        teamarrows.reset()
         friendlyfire.reset()
     end
     autodash.tick(pc, t, FFWUi.inGame(pc))
@@ -324,6 +338,7 @@ local function tick()
     announcer.fastTick(pc, t)
     friendlyfire.fastTick(pc, t)
     clearzone.fastTick(pc, t)
+    teamarrows.fastTick(pc, t)
     if options:editing() then -- the sliders follow the mouse on every frame
         local ui = options:update(pc, ctx.active(pc))
         if ui then pollSliders(ui, pc) end
@@ -342,7 +357,7 @@ local function dump()
     for _, o in ipairs(OPTIONS) do
         log(string.format("  option %-20s %s", o.label, o.swatches and o.swatches[swatchIndex(o)].name or (optionOn(o) and "on" or "off")))
     end
-    for _, part in ipairs({ moreplayers, speedometer, autodash, muzzle, announcer, clearzone, friendlyfire, spinsound }) do
+    for _, part in ipairs({ moreplayers, speedometer, autodash, muzzle, announcer, clearzone, teamarrows, friendlyfire, spinsound }) do
         local ok, err = pcall(part.dump)
         if not ok then log("  dump error: " .. tostring(err)) end
     end

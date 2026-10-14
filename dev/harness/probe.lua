@@ -43,7 +43,7 @@ do
     local env = setmetatable({
         FFWUi = FFWUi, log = log, CONFIG = CONFIG, C = C, options = options, dump = dump, P = P,
         autodash = autodash, muzzle = muzzle, announcer = announcer, moreplayers = moreplayers, speedometer = speedometer,
-        spinsound = spinsound, friendlyfire = friendlyfire, clearzone = clearzone,
+        spinsound = spinsound, friendlyfire = friendlyfire, clearzone = clearzone, teamarrows = teamarrows,
         pc = function() return FFWUi.localController() end,
         pawn = function() return FFWUi.localController().Pawn end,
         action = function(name)
